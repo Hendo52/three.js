@@ -44,8 +44,10 @@
 			const onUpPosition = new THREE.Vector2();
 			const onDownPosition = new THREE.Vector2();
 
+			// Cube used to show control points
 			const geometry = new THREE.BoxGeometry( 20, 20, 20 );
 			let transformControl;
+			let starMesh = null;
 
 			const ARC_SEGMENTS = 200;
 
@@ -169,6 +171,7 @@
 
 				}
 
+				// not to be confused with geometry (above)
 				const geometry = new THREE.BufferGeometry();
 				geometry.setAttribute( 'position', new THREE.BufferAttribute( new Float32Array( ARC_SEGMENTS * 3 ), 3 ) );
 
@@ -206,11 +209,48 @@
 
 				}
 
+				
+
+
 				load( [ new THREE.Vector3( 289.76843686945404, 452.51481137238443, 56.10018915737797 ),
 					new THREE.Vector3( - 53.56300074753207, 171.49711742836848, - 14.495472686253045 ),
 					new THREE.Vector3( - 91.40118730204415, 176.4306956436485, - 6.958271935582161 ),
 					new THREE.Vector3( - 383.785318791128, 491.1365363371675, 47.869296953772746 ) ] );
 
+			}
+
+			function updateStarMesh() {
+				if (starMesh) {
+					scene.remove(starMesh)
+				}
+				const pts2 = [], numPts = 7;
+
+				for ( let i = 0; i < numPts * 2; i ++ ) {
+
+					const l = i % 2 == 1 ? 10 : 20;
+
+					const a = i / numPts * Math.PI;
+
+					pts2.push( new THREE.Vector2( Math.cos( a ) * l, Math.sin( a ) * l ) );
+
+				}
+				
+				const extrudeSettings2 = {
+					steps: 200,
+					bevelEnabled: false,
+					extrudePath: splines.centripetal
+				};
+
+				const shape2 = new THREE.Shape( pts2 );
+
+				const geometry2 = new THREE.ExtrudeGeometry( shape2, extrudeSettings2 );
+
+				const material2 = new THREE.MeshLambertMaterial( { color: 0xff8000, wireframe: false } );
+
+				const mesh2 = new THREE.Mesh( geometry2, material2 );
+
+				starMesh = mesh2;
+				scene.add( mesh2 );
 			}
 
 			function addSplineObject( position ) {
@@ -268,7 +308,6 @@
 			}
 
 			function updateSplineOutline() {
-
 				for ( const k in splines ) {
 
 					const spline = splines[ k ];
@@ -287,6 +326,7 @@
 					position.needsUpdate = true;
 
 				}
+				updateStarMesh()
 
 			}
 
